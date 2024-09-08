@@ -1,0 +1,38 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .pagination li {
+    margin: 0 5px;
+  }
+  
+  .pagination button {
+    background-color: #007bff; /* Plava pozadina za dugmad */
+    color: white; /* Bela boja teksta */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .pagination button:disabled {
+    background-color: #d6d6d6; /* Svetlo siva za neaktivna dugmad */
+    cursor: not-allowed;
+  }
+  
+  .pagination li {
+    display: flex;
+    align-items: center;
+  }
+  
+  .pagination li:not(:last-child) {
+    margin-right: 10px; /* Razmak između stranica */
+  }
+  
+  .pagination li span {
+    font-size: 16px;
+  }

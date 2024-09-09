@@ -1,0 +1,31 @@
+.company-content {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .company-content h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .company-content .create-job-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .company-content .create-job-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .company-content .job-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }

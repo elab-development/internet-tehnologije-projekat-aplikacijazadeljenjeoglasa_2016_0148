@@ -16,12 +16,13 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::post('/register/student', [StudentController::class,'register']);
-Route::post('/register/company', [CompanyController::class,'register']);
+Route::post('/register/student', [StudentController::class, 'register']);
+Route::post('/register/company', [CompanyController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Student rute
-    Route::post('/student/openings/{id}/apply',[StudentController::class, 'apply']); // Prijava studenta na oglas
+    // Student rute
+    Route::match(['get', 'post'], '/student/openings/{id}/apply', [StudentController::class, 'applyOrCheck']); // Prijava studenta ili provera prijave na oglas
     Route::delete('/student/profile/{studentId?}', [StudentController::class, 'destroy']); // Brisanje studenta (sopstvenog naloga ukoliko nije prosledjen ID ili odredjenog naloga od strane admina ukoliko je prosledjen ID)
 
     // Kompanija rute
@@ -37,6 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications/openings/{openingId}', [ApplicationController::class, 'indexForOpening']); // Prikaz prijava na odredjeni oglas kompanije
     Route::get('/applications', [ApplicationController::class, 'indexForAdmin']); // Prikaz svih prijava (namenjen adminu)
     Route::delete('/applications/{applicationId}', [ApplicationController::class, 'destroy']); // Brisanje prijave (namenjeno adminu)
-    
-});
+    Route::get('/student/applications', [ApplicationController::class, 'indexForStudent']); // Prikaz svih prijava za trenutno ulogovanog studenta
 
+});

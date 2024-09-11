@@ -8,7 +8,7 @@ function ProfilePage() {
 
   useEffect(() => {
     // Učitavanje podataka trenutno ulogovanog korisnika iz localStorage
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     
     if (!currentUser) {
       // Ako korisnik nije ulogovan, preusmeravanje na početnu stranicu
@@ -74,16 +74,16 @@ function ProfilePage() {
         <p><strong>Ime:</strong> {userData.name}</p>
         {userData.userType === 'student' && (
           <>
-            <p><strong>Fakultet:</strong> {userData.faculty}</p>
-            <p><strong>Glavna oblast:</strong> {userData.major}</p>
-            <p><strong>Godina diplomiranja:</strong> {userData.graduationYear}</p>
+            <p><strong>Fakultet:</strong> {userData.student.faculty}</p>
+            <p><strong>Smer:</strong> {userData.student.study_program}</p>
+            <p><strong>Godina diplomiranja:</strong> {userData.student.graduation_year}</p>
           </>
         )}
         {userData.userType === 'company' && (
           <>
-            <p><strong>Opis:</strong> {userData.description}</p>
-            <p><strong>Websajt:</strong> {userData.website}</p>
-            <p><strong>Lokacija:</strong> {userData.location}</p>
+            <p><strong>Opis:</strong> {userData.company.description}</p>
+            <p><strong>Websajt:</strong> {userData.company.website}</p>
+            <p><strong>Lokacija:</strong> {userData.company.location}</p>
           </>
         )}
       </div>

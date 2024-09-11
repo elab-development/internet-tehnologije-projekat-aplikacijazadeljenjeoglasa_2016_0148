@@ -61,3 +61,30 @@ export const getAllOpenings = async (filters = {}, page = 1) => {
     throw error.response.data;
   }
 };
+
+export const applyToJob = async (openingId) => {
+    try {
+      const response = await axios.post(`${API_URL}/student/openings/${openingId}/apply`, {}, getAuthHeader());
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  };
+
+  export const checkIfApplied = async (openingId) => {
+    try {
+      const response = await axios.get(`${API_URL}/student/openings/${openingId}/apply`, getAuthHeader());
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  };
+  
+  export const getStudentApplications = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/student/applications`, getAuthHeader());
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  };

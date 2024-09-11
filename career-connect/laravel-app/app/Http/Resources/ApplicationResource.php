@@ -18,6 +18,7 @@ class ApplicationResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
+            'applied_at' => $this->applied_at,
             'student' => [
                 'name' => $this->student->user->name,
                 'faculty' => $this->student->faculty,

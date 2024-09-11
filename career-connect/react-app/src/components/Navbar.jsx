@@ -13,8 +13,7 @@ function Navbar({ userType, activeTab, setActiveTab }) {
       // Pozivamo logout API
       await logoutUser();
 
-      // Uklanjamo token i korisničke podatke iz
-      sessionStorage;
+      // Uklanjamo token i korisničke podatke iz sessionStorage;
       sessionStorage.removeItem("currentUser");
       sessionStorage.removeItem("token");
 

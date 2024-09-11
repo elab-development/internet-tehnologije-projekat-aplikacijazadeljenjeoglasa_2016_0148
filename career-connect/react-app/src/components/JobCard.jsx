@@ -1,18 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import JobDetailsModal from "./JobDetailsModal";
+import { checkIfApplied } from "../Api";
 import "../styles/JobCard.css";
 
 function JobCard({
   job,
   isStudent,
   onApply,
-  alreadyApplied,
+  alreadyApplied: initialAlreadyApplied,
   onEdit,
   onDelete,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOpenModal = () => setIsModalOpen(true);
+  const [alreadyApplied, setAlreadyApplied] = useState(initialAlreadyApplied);
+
+  useEffect(() => {
+    // Update the local state if the initial prop changes
+    setAlreadyApplied(initialAlreadyApplied);
+  }, [initialAlreadyApplied]);
+
+  const handleOpenModal = async () => {
+    if (isStudent) {
+      try {
+        const appliedStatus = await checkIfApplied(job.id);
+        if (appliedStatus.status === "applied") {
+          setAlreadyApplied(true);
+        } else {
+          setAlreadyApplied(false);
+        }
+      } catch (error) {
+        console.error("Failed to check if applied", error);
+      }
+    }
+    setIsModalOpen(true);
+  };
+
   const handleCloseModal = () => setIsModalOpen(false);
+
   return (
     <div className="job-card">
       <h3>{job.title}</h3>
@@ -34,4 +58,5 @@ function JobCard({
     </div>
   );
 }
+
 export default JobCard;

@@ -62,25 +62,39 @@ class StudentController extends Controller
         return $student;
     }
 
-    // Prijava na oglas
-    public function apply(Request $request, $id)
-    {
-        $student = $this->ensureStudent();
-        if ($student instanceof \Illuminate\Http\JsonResponse) return $student;
+    // Prijava na oglas ili provera da li je student prijavljen
+    public function applyOrCheck(Request $request, $id)
+{
+    $student = $this->ensureStudent();
+    if ($student instanceof \Illuminate\Http\JsonResponse) return $student;
 
-        $opening = Opening::findOrFail($id);
+    $opening = Opening::findOrFail($id);
 
-        if ($student->applications()->where('opening_id', $id)->exists()) {
-            return response()->json(['error' => 'You have already applied for this job.'], 400);
+    // Provera da li student već ima prijavu na ovaj oglas
+    $existingApplication = $student->applications()->where('opening_id', $id)->first();
+
+    // Ako je GET metoda, proveri da li postoji prijava
+    if ($request->isMethod('get')) {
+        if ($existingApplication) {
+            return response()->json(['status' => 'applied', 'message' => 'You have already applied for this job.']);
+        } else {
+            return response()->json(['status' => 'not_applied', 'message' => 'You have not applied for this job.']);
         }
-
-        Application::create([
-            'student_id' => $student->id,
-            'opening_id' => $opening->id,
-        ]);
-
-        return response()->json(['message' => 'Application submitted successfully.']);
     }
+
+    // Ako je POST metoda i prijava već postoji
+    if ($existingApplication) {
+        return response()->json(['error' => 'You have already applied for this job.'], 400);
+    }
+
+    // Prijava studenta na oglas
+    Application::create([
+        'student_id' => $student->id,
+        'opening_id' => $opening->id,
+    ]);
+
+    return response()->json(['message' => 'Application submitted successfully.']);
+}
 
 
     // Brisanje naloga

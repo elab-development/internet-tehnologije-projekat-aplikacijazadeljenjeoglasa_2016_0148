@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ApplicationCollection;
-use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,6 +78,17 @@ class ApplicationController extends Controller
             );
         }
         $applications = $opening->applications;
+        return new ApplicationCollection($applications);
+    }
+
+    public function indexForStudent()
+    {
+        $student = Auth::user()->student;
+        if (!$student) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $applications = Application::where('student_id', $student->id)->get();
         return new ApplicationCollection($applications);
     }
 }

@@ -9,10 +9,10 @@ function JobDetailsModal({ job, isOpen, onClose, isStudent, onApply, alreadyAppl
       <div className="modal-content">
         <h2>{job.title}</h2>
         <p><strong>Kompanija:</strong> {job.company}</p>
-        <p><strong>Tip zaposlenja:</strong> {job.employmentType}</p>
-        <p><strong>Način rada:</strong> {job.workMode}</p>
+        <p><strong>Tip zaposlenja:</strong> {job.employment_type}</p>
+        <p><strong>Način rada:</strong> {job.work_mode}</p>
         <p><strong>Opis posla:</strong> {job.description}</p>
-        <p><strong>Ističe:</strong> {job.expiresAt}</p>
+        <p><strong>Ističe:</strong> {job.expires_at}</p>
 
         {isStudent ? (
           alreadyApplied ? (

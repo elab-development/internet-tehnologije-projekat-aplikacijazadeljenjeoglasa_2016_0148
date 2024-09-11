@@ -1,13 +1,12 @@
-import React from 'react';
-import '../styles/Pagination.css';
+import React from "react";
+import "../styles/Pagination.css";
 
-function Pagination({ currentPage, jobsPerPage, totalJobs, onPageChange, goToPreviousPage, goToNextPage }) {
-  const pageNumbers = [];
-
-  for (let i = 1; i <= Math.ceil(totalJobs / jobsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
+function Pagination({
+  currentPage,
+  totalPages,
+  goToPreviousPage,
+  goToNextPage,
+}) {
   return (
     <nav>
       <ul className="pagination">
@@ -17,16 +16,15 @@ function Pagination({ currentPage, jobsPerPage, totalJobs, onPageChange, goToPre
           </button>
         </li>
         <li>
-          Strana {currentPage} od {pageNumbers.length}
+          Strana {currentPage} od {totalPages}
         </li>
         <li>
-          <button onClick={goToNextPage} disabled={currentPage === pageNumbers.length}>
+          <button onClick={goToNextPage} disabled={currentPage === totalPages}>
             Sledeća
           </button>
         </li>
       </ul>
     </nav>
   );
-};
-
+}
 export default Pagination;

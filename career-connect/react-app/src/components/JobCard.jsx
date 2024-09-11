@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
-import JobDetailsModal from './JobDetailsModal';
-import '../styles/JobCard.css';
+import React, { useState } from "react";
+import JobDetailsModal from "./JobDetailsModal";
+import "../styles/JobCard.css";
 
-function JobCard({ job, isStudent, onApply, alreadyApplied, onEdit, onDelete }) {
+function JobCard({
+  job,
+  isStudent,
+  onApply,
+  alreadyApplied,
+  onEdit,
+  onDelete,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-
   return (
     <div className="job-card">
       <h3>{job.title}</h3>
       <p>Kompanija: {job.company}</p>
-      <p>Tip zaposlenja: {job.employmentType}</p>
-      <p>Način rada: {job.workMode}</p>
-      <p>Ističe: {job.expiresAt}</p>
+      <p>Tip zaposlenja: {job.employment_type}</p>
+      <p>Način rada: {job.work_mode}</p>
+      <p>Ističe: {job.expires_at}</p>
       <button onClick={handleOpenModal}>Prikaži Detalje</button>
-
       <JobDetailsModal
         job={job}
         isOpen={isModalOpen}
@@ -29,6 +33,5 @@ function JobCard({ job, isStudent, onApply, alreadyApplied, onEdit, onDelete }) 
       />
     </div>
   );
-};
-
+}
 export default JobCard;

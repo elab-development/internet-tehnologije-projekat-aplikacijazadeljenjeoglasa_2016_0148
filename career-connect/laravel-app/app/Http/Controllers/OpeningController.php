@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OpeningCollection;
+use App\Http\Resources\OpeningResource;
 use App\Models\Opening;
 use Auth;
 use Illuminate\Http\Request;
@@ -15,16 +17,23 @@ class OpeningController extends Controller
     public function index(Request $request)
     {
         $query = Opening::query();
+        // Filtriranje prema tipu zaposlenja
         if ($request->has('employment_type')) {
             $query->where('employment_type', $request->employment_type);
         }
+        // Filtriranje prema načinu rada
         if ($request->has('work_mode')) {
             $query->where('work_mode', $request->work_mode);
         }
+        // Pretraga prema naslovu oglasa
         if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $query->where('title', 'like', '%' . $request->search .
+                '%');
         }
-        return response()->json($query->get(), 200);
+        // Paginacija
+        $openings = $query->with('company')->paginate(2);
+        // Vraćanje paginiranih rezultata
+        return new OpeningCollection($openings);
     }
     /**
      * Show the form for creating a new resource.
@@ -42,7 +51,7 @@ class OpeningController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string',
-            'employment_type' => 'required|string|in:full-time,part-time,internship',
+            'employment_type' => 'required|string|in:fulltime,part-time,internship',
             'work_mode' => 'required|string|in:office,hybrid,remote',
             'expires_at' => 'nullable|date',
         ]);
@@ -115,13 +124,11 @@ class OpeningController extends Controller
     {
         $opening = Opening::findOrFail($id);
         $user = Auth::user();
-
         // Provera da li je admin
         if ($user->admin) {
             $opening->delete();
             return response()->json(['message' => 'Opening deleted successfully by admin.']);
         }
-
         // Provera da li je ulogovana kompanija vlasnik oglasa
         $company = $user->company;
         if (!$company || $opening->company_id != $company->id) {
@@ -130,23 +137,18 @@ class OpeningController extends Controller
                 403
             );
         }
-
         // Brisanje oglasa ako je ulogovana kompanija vlasnik
         $opening->delete();
         return response()->json(['message' => 'Opening deleted successfully.']);
     }
-
     // Openings of current logged in company
     public function companyOpenings()
     {
         $company = Auth::user()->company;
-
         if (!$company) {
             return response()->json(['error' => 'Only companies can view their own openings.'], 403);
         }
-
         $openings = Opening::where('company_id', $company->id)->get();
-
         return response()->json($openings, 200);
     }
 }

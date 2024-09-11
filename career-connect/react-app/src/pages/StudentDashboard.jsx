@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
 import ApplicationCard from "../components/ApplicationCard";
+import Alert from "../components/Alert"; // Dodajemo Alert komponentu
 import { getAllOpenings, applyToJob, getStudentApplications } from "../Api";
 import "../styles/StudentDashboard.css";
 
@@ -15,6 +16,7 @@ function StudentDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState("jobs");
+  const [alert, setAlert] = useState({ message: '', type: '' }); // Dodajemo stanje za Alert
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
   const studentId = currentUser?.id || null;
 
@@ -34,6 +36,7 @@ function StudentDashboard() {
         setTotalPages(jobData.meta.last_page);
       } catch (error) {
         console.error("Failed to fetch jobs", error);
+        setAlert({ message: "Došlo je do greške prilikom učitavanja poslova.", type: "error" });
       }
     };
 
@@ -47,6 +50,7 @@ function StudentDashboard() {
         setApplications(applicationData.data);
       } catch (error) {
         console.error("Failed to fetch applications", error);
+        setAlert({ message: "Došlo je do greške prilikom učitavanja prijava.", type: "error" });
       }
     };
 
@@ -59,20 +63,20 @@ function StudentDashboard() {
 
   const handleApply = async (job) => {
     if (!studentId) {
-      alert("Please log in to apply for jobs.");
+      setAlert({ message: "Molimo vas da se prijavite kako biste aplicirali.", type: "warning" });
       return;
     }
 
     try {
       await applyToJob(job.id);
-      alert(`Successfully applied for the job: ${job.title}`);
-      
-      // After applying, fetch the updated list of applications
+      setAlert({ message: `Uspešno ste aplicirali za posao: ${job.title}`, type: "success" });
+
+      // Nakon prijave, ažuriramo listu prijava
       const updatedApplications = await getStudentApplications();
       setApplications(updatedApplications.data);
     } catch (error) {
       console.error("Failed to apply for job", error);
-      alert("Failed to apply for the job.");
+      setAlert({ message: "Došlo je do greške prilikom prijave na posao.", type: "error" });
     }
   };
 
@@ -147,6 +151,11 @@ function StudentDashboard() {
             </div>
           </div>
         )}
+        <Alert 
+          message={alert.message} 
+          type={alert.type} 
+          onClose={() => setAlert({ message: '', type: '' })} 
+        />
       </main>
     </div>
   );

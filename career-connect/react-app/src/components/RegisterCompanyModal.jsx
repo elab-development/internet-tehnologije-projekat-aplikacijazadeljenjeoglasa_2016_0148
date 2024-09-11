@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { registerCompany } from '../Api'; // Uvezi API funkciju
+import React, { useState, useEffect } from 'react';
+import { registerCompany, getCurrentLocation } from '../Api'; // Uvezi API funkcije
 import Alert from '../components/Alert'; // Uvezi Alert komponentu
 import '../styles/Modal.css';
 
@@ -14,6 +14,22 @@ function RegisterCompanyModal({ onClose }) {
   const [errors, setErrors] = useState({});
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [shouldCloseModal, setShouldCloseModal] = useState(false);
+
+  // NOTE: Skloni komentar za javni veb servis
+  // useEffect(() => {
+  //   // Funkcija za postavljanje trenutne lokacije
+  //   const fetchLocation = async () => {
+  //     try {
+  //       const { continent_name, country_name, city } = await getCurrentLocation();
+  //       setLocation(`${city}, ${country_name}, ${continent_name}`); // Formatiraj lokaciju
+  //     } catch (error) {
+  //       console.error("Error fetching location:", error);
+  //       setLocation(''); // Ako dođe do greške, ostavi polje prazno
+  //     }
+  //   };
+
+  //   fetchLocation();
+  // }, []);
 
   const validateForm = () => {
     const newErrors = {};

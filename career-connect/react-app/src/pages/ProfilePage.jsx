@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { deleteStudent, deleteCompany } from '../Api';
+import Alert from '../components/Alert';
 import '../styles/ProfilePage.css';
 
 function ProfilePage() {
   const [userData, setUserData] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Učitavanje podataka trenutno ulogovanog korisnika iz localStorage
+    // Učitavanje podataka trenutno ulogovanog korisnika iz sessionStorage
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     
     if (!currentUser) {
@@ -18,43 +23,27 @@ function ProfilePage() {
     }
   }, [navigate]);
 
-  const handleDelete = () => {
-    const confirmDelete = window.confirm('Da li ste sigurni da želite da obrišete svoj profil? Ova akcija je nepovratna.');
-
-    if (confirmDelete) {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
-      if (currentUser) {
-        // Preuzmi sve korisnike, kompanije, oglase i prijave iz localStorage
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let companies = JSON.parse(localStorage.getItem('companies')) || [];
-        let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
-        let applications = JSON.parse(localStorage.getItem('applications')) || [];
-
-        // Filtriraj korisnike ili kompanije na osnovu tipa korisnika
-        if (currentUser.userType === 'student') {
-          // Brisanje studenta
-          users = users.filter(user => user.id !== currentUser.id);
-          localStorage.setItem('users', JSON.stringify(users));
-
-          // Izbriši sve prijave koje je student kreirao
-          const remainingApplications = applications.filter(application => application.studentId !== currentUser.id);
-          localStorage.setItem('applications', JSON.stringify(remainingApplications));
-
-        } else if (currentUser.userType === 'company') {
-          // Brisanje kompanije
-          companies = companies.filter(company => company.id !== currentUser.id);
-          localStorage.setItem('companies', JSON.stringify(companies));
-          
-          // Izbriši sve oglase koje je kompanija kreirala
-          const remainingJobs = jobs.filter(job => job.companyId !== currentUser.id);
-          localStorage.setItem('jobs', JSON.stringify(remainingJobs));
-        }
-        
-        // Obriši trenutno ulogovanog korisnika iz localStorage
-        localStorage.removeItem('currentUser');
-        navigate('/');
+  const handleDelete = async () => {
+    setShowConfirmModal(false);
+    try {
+      // Provera tipa korisnika i brisanje iz baze
+      if (userData.userType === 'student') {
+        await deleteStudent(); // Poziv API funkcije za brisanje studenta
+      } else if (userData.userType === 'company') {
+        await deleteCompany(); // Poziv API funkcije za brisanje kompanije
       }
+
+      // Uklanjanje korisnika iz sessionStorage nakon uspešnog brisanja
+      sessionStorage.removeItem('currentUser');
+      sessionStorage.removeItem('token');
+      setAlertMessage('Profil je uspešno obrisan.');
+      setAlertType('success');
+      navigate('/'); // Preusmeravanje na početnu stranicu nakon brisanja
+
+    } catch (error) {
+      console.error("Greška prilikom brisanja profila:", error);
+      setAlertMessage('Došlo je do greške prilikom brisanja profila. Pokušajte ponovo.');
+      setAlertType('error');
     }
   };
 
@@ -63,12 +52,34 @@ function ProfilePage() {
     navigate(-1);
   };
 
+  const handleConfirmDelete = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+  };
+
   if (!userData) {
     return <div>Loading...</div>; // Prikazuje se dok se podaci ne učitaju
   }
 
   return (
     <div className="profile-page">
+      {alertMessage && (
+        <Alert message={alertMessage} type={alertType} onClose={() => setAlertMessage('')} />
+      )}
+      
+      {showConfirmModal && (
+        <div className="confirm-modal">
+          <div className="confirm-modal-content">
+            <p>Da li ste sigurni da želite da obrišete svoj profil? Ova akcija je nepovratna.</p>
+            <button className="confirm-modal-button" onClick={handleDelete}>Da</button>
+            <button className="confirm-modal-button" onClick={handleCancelDelete}>Ne</button>
+          </div>
+        </div>
+      )}
+
       <div className="profile-info">
         <h1>Profil {userData.userType === 'student' ? 'Studenta' : 'Kompanije'}</h1>
         <p><strong>Ime:</strong> {userData.name}</p>
@@ -88,11 +99,11 @@ function ProfilePage() {
         )}
       </div>
       <div className="button-container">
-        <button className="delete-button" onClick={handleDelete}>Obriši Profil</button>
+        <button className="delete-button" onClick={handleConfirmDelete}>Obriši Profil</button>
         <button className="back-button" onClick={handleBack}>Nazad</button>
       </div>
     </div>
   );
-};
+}
 
 export default ProfilePage;

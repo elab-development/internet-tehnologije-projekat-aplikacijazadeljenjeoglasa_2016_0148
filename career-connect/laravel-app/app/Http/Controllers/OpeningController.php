@@ -51,7 +51,7 @@ class OpeningController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string',
-            'employment_type' => 'required|string|in:fulltime,part-time,internship',
+            'employment_type' => 'required|string|in:full-time,part-time,internship',
             'work_mode' => 'required|string|in:office,hybrid,remote',
             'expires_at' => 'nullable|date',
         ]);
@@ -107,7 +107,7 @@ class OpeningController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
             'location' => 'sometimes|string',
-            'employment_type' => 'sometimes|string|in:fulltime,part-time,internship',
+            'employment_type' => 'sometimes|string|in:full-time,part-time,internship',
             'work_mode' => 'sometimes|string|in:office,hybrid,remote',
             'expires_at' => 'nullable|date',
         ]);
@@ -124,23 +124,28 @@ class OpeningController extends Controller
     {
         $opening = Opening::findOrFail($id);
         $user = Auth::user();
+
         // Provera da li je admin
         if ($user->admin) {
+            // Brisanje svih prijava vezanih za oglas
+            $opening->applications()->delete();
             $opening->delete();
-            return response()->json(['message' => 'Opening deleted successfully by admin.']);
+            return response()->json(['message' => 'Opening and all related applications deleted successfully by admin.']);
         }
+
         // Provera da li je ulogovana kompanija vlasnik oglasa
         $company = $user->company;
         if (!$company || $opening->company_id != $company->id) {
-            return response()->json(
-                ['error' => 'Unauthorized.'],
-                403
-            );
+            return response()->json(['error' => 'Unauthorized.'], 403);
         }
+
+        // Brisanje svih prijava vezanih za oglas
+        $opening->applications()->delete();
         // Brisanje oglasa ako je ulogovana kompanija vlasnik
         $opening->delete();
-        return response()->json(['message' => 'Opening deleted successfully.']);
+        return response()->json(['message' => 'Opening and all related applications deleted successfully.']);
     }
+
     // Openings of current logged in company
     public function companyOpenings()
     {
@@ -149,6 +154,6 @@ class OpeningController extends Controller
             return response()->json(['error' => 'Only companies can view their own openings.'], 403);
         }
         $openings = Opening::where('company_id', $company->id)->get();
-        return response()->json($openings, 200);
+        return new OpeningCollection($openings);
     }
 }

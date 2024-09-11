@@ -72,11 +72,22 @@ class CompanyController extends Controller
             if ($company instanceof \Illuminate\Http\JsonResponse)
                 return $company;
 
+            // Brisanje svih prijava povezanih sa oglasima kompanije
+            foreach ($company->openings as $opening) {
+                $opening->applications()->delete();
+            }
+
+            // Brisanje svih oglasa kompanije
+            $company->openings()->delete();
+
+            // Brisanje tokena
+            $user->tokens()->delete();
+
             $user = $company->user;
             $company->delete();
             $user->delete();
 
-            return response()->json(['message' => 'Company profile deleted successfully.']);
+            return response()->json(['message' => 'Company profile and all related data deleted successfully.']);
         }
 
         // Ako je admin, omogućava mu da obriše bilo koju kompaniju po ID-ju
@@ -86,11 +97,22 @@ class CompanyController extends Controller
                 return response()->json(['error' => 'Company not found.'], 404);
             }
 
+            // Brisanje svih prijava povezanih sa oglasima kompanije
+            foreach ($company->openings as $opening) {
+                $opening->applications()->delete();
+            }
+
+            // Brisanje svih oglasa kompanije
+            $company->openings()->delete();
+
+            // Brisanje tokena
+            $user->tokens()->delete();
+
             $user = $company->user;
             $company->delete();
             $user->delete();
 
-            return response()->json(['message' => 'Company profile deleted successfully by admin.']);
+            return response()->json(['message' => 'Company profile and all related data deleted successfully by admin.']);
         }
 
         return response()->json(['error' => 'Unauthorized'], 403);

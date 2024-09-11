@@ -19,6 +19,10 @@ function JobCard({
     setAlreadyApplied(initialAlreadyApplied);
   }, [initialAlreadyApplied]);
 
+  useEffect(() => {
+    setIsModalOpen(false)
+  }, [onDelete, onApply]);
+
   const handleOpenModal = async () => {
     if (isStudent) {
       try {

@@ -2,58 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import JobCard from '../components/JobCard';
-import Pagination from '../components/Pagination';
+import Alert from '../components/Alert'; // Importujemo Alert komponentu
+import { getCompanyOpenings, deleteOpening } from '../Api'; // Importuj API funkcije
 import '../styles/CompanyDashboard.css';
 
 function CompanyDashboard() {
   const [openings, setOpenings] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const openingsPerPage = 2;
+  const [alert, setAlert] = useState({ message: '', type: '' }); // Stanje za Alert komponentu
   const navigate = useNavigate();
 
   useEffect(() => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    const fetchOpenings = async () => {
+      try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
-    if (currentUser) {
-      const savedJobs = JSON.parse(localStorage.getItem('jobs')) || [];
-      const companyJobs = savedJobs.filter(job => job.companyId === currentUser.id);
-      setOpenings(companyJobs);
-    } else {
-      navigate('/');
-    }
+        if (currentUser) {
+          const response = await getCompanyOpenings();
+          setOpenings(response.data); // Pristupi 'data' iz odgovora
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Failed to fetch openings:', error);
+        setAlert({ message: 'Došlo je do greške prilikom učitavanja oglasa.', type: 'error' });
+      }
+    };
+
+    fetchOpenings();
   }, [navigate]);
 
   const handleEdit = (job) => {
     navigate('/create-job', { state: { job } });
   };
 
-  const handleDelete = (jobId) => {
-    const allJobs = JSON.parse(localStorage.getItem('jobs')) || [];
-    const updatedOpenings = allJobs.filter(job => job.id !== jobId);
-    localStorage.setItem('jobs', JSON.stringify(updatedOpenings));
-    
-    const applications = JSON.parse(localStorage.getItem('applications')) || [];
-    const updatedApplications = applications.filter(application => application.id !== jobId);
-    localStorage.setItem('applications', JSON.stringify(updatedApplications));
-    
-    setOpenings(updatedOpenings.filter(job => job.companyId === JSON.parse(localStorage.getItem('currentUser')).id));
-    
-    alert('Oglas je uspešno obrisan');
-  };
-
-  const indexOfLastOpening = currentPage * openingsPerPage;
-  const indexOfFirstOpening = indexOfLastOpening - openingsPerPage;
-  const currentOpenings = openings.slice(indexOfFirstOpening, indexOfLastOpening);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-  const goToNextPage = () => {
-    if (currentPage < Math.ceil(openings.length / openingsPerPage)) {
-      setCurrentPage(currentPage + 1);
+  const handleDelete = async (jobId) => {
+    try {
+      await deleteOpening(jobId);
+      // Ponovo učitaj oglase nakon brisanja
+      const updatedOpenings = await getCompanyOpenings();
+      setOpenings(updatedOpenings.data);
+      setAlert({ message: 'Oglas je uspešno obrisan', type: 'success' });
+    } catch (error) {
+      console.error('Failed to delete job:', error);
+      setAlert({ message: 'Došlo je do greške prilikom brisanja oglasa.', type: 'error' });
     }
   };
 
@@ -66,7 +57,7 @@ function CompanyDashboard() {
           Kreiraj Novi Oglas
         </button>
         <div className="job-list">
-          {currentOpenings.map((opening) => (
+          {openings.map((opening) => (
             <JobCard
               key={opening.id}
               job={opening}
@@ -75,13 +66,10 @@ function CompanyDashboard() {
             />
           ))}
         </div>
-        <Pagination
-          jobsPerPage={openingsPerPage}
-          totalJobs={openings.length}
-          paginate={paginate}
-          currentPage={currentPage}
-          goToPreviousPage={goToPreviousPage}
-          goToNextPage={goToNextPage}
+        <Alert 
+          message={alert.message} 
+          type={alert.type} 
+          onClose={() => setAlert({ message: '', type: '' })} 
         />
       </main>
     </div>

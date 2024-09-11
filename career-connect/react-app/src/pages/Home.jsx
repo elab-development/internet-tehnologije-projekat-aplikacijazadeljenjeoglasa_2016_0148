@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../Api'; // Uvezi funkciju za login
+import { loginUser } from '../Api';
 import RegisterStudentModal from '../components/RegisterStudentModal';
 import RegisterCompanyModal from '../components/RegisterCompanyModal';
+import Alert from '../components/Alert';
 import '../styles/Home.css';
 
 function Home() {
@@ -10,6 +11,8 @@ function Home() {
   const [showRegisterCompanyModal, setShowRegisterCompanyModal] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState(''); // 'success' or 'error'
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -32,12 +35,17 @@ function Home() {
         navigate('/company-dashboard');
       }
     } catch (error) {
-      alert(error.message || 'Neispravan email ili lozinka.');
+      setAlertMessage('Neispravan email ili lozinka.');
+      setAlertType('error');
     }
   };
 
   return (
     <div className="home-container">
+      {alertMessage && (
+        <Alert message={alertMessage} type={alertType} onClose={() => setAlertMessage('')} />
+      )}
+      
       <div className="login-container">
         <h1>Login</h1>
         <form className="login-form" onSubmit={handleLogin}>

@@ -14,11 +14,11 @@
   }
   
   .alert.success {
-    background-color: #4caf50;
+    background-color: #8ed891;
   }
   
   .alert.error {
-    background-color: #f44336;
+    background-color: #ff958e;
   }
   
   .alert-close {

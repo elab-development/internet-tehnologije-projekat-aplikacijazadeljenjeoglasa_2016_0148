@@ -1,58 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { createOpening, updateOpening } from '../Api';
+import Alert from '../components/Alert';
 import '../styles/CreateJob.css';
 
 function CreateJob() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Dodajemo state za poruke
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('success'); // Default je success, ali menja se u error po potrebi
+
   const [jobData, setJobData] = useState({
     title: '',
-    employmentType: 'full-time',
-    workMode: 'remote',
-    expiresAt: '',
+    employment_type: 'full-time',
+    work_mode: 'remote',
+    expiresAtDate: '',
+    expiresAtTime: '',
     description: '',
+    location: '', // Dodato polje za lokaciju
   });
 
   useEffect(() => {
     const jobToEdit = location.state?.job;
     if (jobToEdit) {
-      setJobData(jobToEdit);
+      const [date, time] = jobToEdit.expires_at.split(' ');
+      setJobData({
+        ...jobToEdit,
+        expiresAtDate: date,
+        expiresAtTime: time,
+      });
     }
   }, [location.state]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const expires_at = `${jobData.expiresAtDate} ${jobData.expiresAtTime}`;
 
-    // Preuzmi trenutno ulogovanog korisnika (kompaniju) iz localStorage
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const updatedJobData = { ...jobData, expires_at };
 
-    let existingJobs = JSON.parse(localStorage.getItem('jobs')) || [];
-
-    if (jobData.id) {
-      // Izmena posla
-      existingJobs = existingJobs.map(job => job.id === jobData.id ? jobData : job);
-    } else {
-      // Kreiranje novog posla
-      const newJob = {
-        id: Date.now(),
-        companyId: currentUser.id, 
-        company: currentUser.name,
-        ...jobData,
-      };
-      existingJobs.push(newJob);
+    try {
+      if (jobData.id) {
+        // Izmena postojećeg oglasa
+        await updateOpening(jobData.id, updatedJobData);
+        setAlertMessage('Oglas je uspešno ažuriran'); // Postavljanje poruke
+        setAlertType('success'); // Tip poruke
+      } else {
+        // Kreiranje novog oglasa
+        await createOpening(updatedJobData);
+        setAlertMessage('Oglas je uspešno kreiran');
+        setAlertType('success');
+      }
+      // Nakon uspeha, preusmeravamo nakon kratkog vremena
+      setTimeout(() => navigate('/company-dashboard'), 2000);
+    } catch (error) {
+      console.error("Greška prilikom čuvanja oglasa:", error);
+      setAlertMessage('Došlo je do greške prilikom čuvanja oglasa. Pokušajte ponovo.');
+      setAlertType('error'); // Prikazujemo grešku
     }
-
-    localStorage.setItem('jobs', JSON.stringify(existingJobs));
-    alert('Oglas je uspešno sačuvan');
-    navigate('/company-dashboard');
   };
 
   const handleChange = (e) => {
     setJobData({ ...jobData, [e.target.name]: e.target.value });
   };
 
+  const closeAlert = () => {
+    setAlertMessage(''); // Zatvaranje poruke
+  };
+
   return (
     <div className="create-job-container">
+      {/* Prikaz poruke */}
+      {alertMessage && (
+        <Alert message={alertMessage} type={alertType} onClose={closeAlert} />
+      )}
+
       <h1>{jobData.id ? 'Izmeni Oglas' : 'Kreiraj Novi Oglas'}</h1>
       <form onSubmit={handleSubmit} className="create-job-form">
         <div className="form-group">
@@ -68,11 +91,11 @@ function CreateJob() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="employmentType">Tip zaposlenja</label>
+          <label htmlFor="employment_type">Tip zaposlenja</label>
           <select
-            name="employmentType"
-            id="employmentType"
-            value={jobData.employmentType}
+            name="employment_type"
+            id="employment_type"
+            value={jobData.employment_type}
             onChange={handleChange}
           >
             <option value="full-time">Full-time</option>
@@ -81,11 +104,11 @@ function CreateJob() {
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="workMode">Način rada</label>
+          <label htmlFor="work_mode">Način rada</label>
           <select
-            name="workMode"
-            id="workMode"
-            value={jobData.workMode}
+            name="work_mode"
+            id="work_mode"
+            value={jobData.work_mode}
             onChange={handleChange}
           >
             <option value="remote">Remote</option>
@@ -94,12 +117,35 @@ function CreateJob() {
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="expiresAt">Ističe</label>
+          <label htmlFor="expiresAtDate">Datum isteka</label>
           <input
             type="date"
-            name="expiresAt"
-            id="expiresAt"
-            value={jobData.expiresAt}
+            name="expiresAtDate"
+            id="expiresAtDate"
+            value={jobData.expiresAtDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="expiresAtTime">Vreme isteka</label>
+          <input
+            type="time"
+            name="expiresAtTime"
+            id="expiresAtTime"
+            value={jobData.expiresAtTime}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="location">Lokacija</label>  {/* Novo polje za lokaciju */}
+          <input
+            type="text"
+            name="location"
+            id="location"
+            placeholder="Unesite lokaciju"
+            value={jobData.location}
             onChange={handleChange}
             required
           />

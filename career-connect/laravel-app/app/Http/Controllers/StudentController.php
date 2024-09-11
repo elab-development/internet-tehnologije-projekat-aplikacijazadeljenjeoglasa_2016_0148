@@ -49,7 +49,7 @@ class StudentController extends Controller
 
         return response()->json(['message' => 'Student registered successfully'], 201);
     }
-    
+
     // Provera da li je korisnik student
     private function ensureStudent()
     {
@@ -64,70 +64,85 @@ class StudentController extends Controller
 
     // Prijava na oglas ili provera da li je student prijavljen
     public function applyOrCheck(Request $request, $id)
-{
-    $student = $this->ensureStudent();
-    if ($student instanceof \Illuminate\Http\JsonResponse) return $student;
+    {
+        $student = $this->ensureStudent();
+        if ($student instanceof \Illuminate\Http\JsonResponse)
+            return $student;
 
-    $opening = Opening::findOrFail($id);
+        $opening = Opening::findOrFail($id);
 
-    // Provera da li student već ima prijavu na ovaj oglas
-    $existingApplication = $student->applications()->where('opening_id', $id)->first();
+        // Provera da li student već ima prijavu na ovaj oglas
+        $existingApplication = $student->applications()->where('opening_id', $id)->first();
 
-    // Ako je GET metoda, proveri da li postoji prijava
-    if ($request->isMethod('get')) {
-        if ($existingApplication) {
-            return response()->json(['status' => 'applied', 'message' => 'You have already applied for this job.']);
-        } else {
-            return response()->json(['status' => 'not_applied', 'message' => 'You have not applied for this job.']);
+        // Ako je GET metoda, proveri da li postoji prijava
+        if ($request->isMethod('get')) {
+            if ($existingApplication) {
+                return response()->json(['status' => 'applied', 'message' => 'You have already applied for this job.']);
+            } else {
+                return response()->json(['status' => 'not_applied', 'message' => 'You have not applied for this job.']);
+            }
         }
+
+        // Ako je POST metoda i prijava već postoji
+        if ($existingApplication) {
+            return response()->json(['error' => 'You have already applied for this job.'], 400);
+        }
+
+        // Prijava studenta na oglas
+        Application::create([
+            'student_id' => $student->id,
+            'opening_id' => $opening->id,
+        ]);
+
+        return response()->json(['message' => 'Application submitted successfully.']);
     }
-
-    // Ako je POST metoda i prijava već postoji
-    if ($existingApplication) {
-        return response()->json(['error' => 'You have already applied for this job.'], 400);
-    }
-
-    // Prijava studenta na oglas
-    Application::create([
-        'student_id' => $student->id,
-        'opening_id' => $opening->id,
-    ]);
-
-    return response()->json(['message' => 'Application submitted successfully.']);
-}
 
 
     // Brisanje naloga
+    // Brisanje naloga
     public function destroy($studentId = null)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    // Ako je student, briše svoj nalog
-    if ($user->student && is_null($studentId)) {
-        $student = $this->ensureStudent();
-        if ($student instanceof \Illuminate\Http\JsonResponse) return $student;
+        // Ako je student, briše svoj nalog
+        if ($user->student && is_null($studentId)) {
+            $student = $this->ensureStudent();
+            if ($student instanceof \Illuminate\Http\JsonResponse)
+                return $student;
 
-        $user = $student->user;
-        $student->delete();
-        $user->delete();
+            // Brisanje svih prijava pre brisanja studenta
+            $student->applications()->delete();
 
-        return response()->json(['message' => 'Profile deleted successfully.']);
-    }
+            // Brisanje tokena
+            $user->tokens()->delete();
 
-    // Ako je admin, omogućava mu da obriše bilo kog studenta po ID-ju
-    if ($user->admin && !is_null($studentId)) {
-        $student = Student::find($studentId);
-        if (!$student) {
-            return response()->json(['error' => 'Student not found.'], 404);
+            $user = $student->user;
+            $student->delete();
+            $user->delete();
+
+            return response()->json(['message' => 'Profile and all related applications deleted successfully.']);
         }
 
-        $user = $student->user;
-        $student->delete();
-        $user->delete();
+        // Ako je admin, omogućava mu da obriše bilo kog studenta po ID-ju
+        if ($user->admin && !is_null($studentId)) {
+            $student = Student::find($studentId);
+            if (!$student) {
+                return response()->json(['error' => 'Student not found.'], 404);
+            }
 
-        return response()->json(['message' => 'Student profile deleted successfully by admin.']);
+            // Brisanje svih prijava pre brisanja studenta
+            $student->applications()->delete();
+
+            // Brisanje tokena
+            $user->tokens()->delete();
+
+            $user = $student->user;
+            $student->delete();
+            $user->delete();
+
+            return response()->json(['message' => 'Student profile and all related applications deleted successfully by admin.']);
+        }
+
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
-
-    return response()->json(['error' => 'Unauthorized'], 403);
-}
 }

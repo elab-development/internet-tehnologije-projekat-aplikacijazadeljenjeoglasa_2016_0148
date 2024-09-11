@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { registerStudent } from '../Api'; // Uvezi API funkciju
+import Alert from '../components/Alert'; // Uvezi Alert komponentu
 import '../styles/Modal.css';
 
 function RegisterStudentModal({ onClose }) {
@@ -8,9 +9,11 @@ function RegisterStudentModal({ onClose }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [faculty, setFaculty] = useState('');
-  const [major, setMajor] = useState('');
-  const [graduationYear, setGraduationYear] = useState('');
+  const [study_program, setStudyProgram] = useState('');
+  const [graduation_year, setGraduationYear] = useState('');
   const [errors, setErrors] = useState({});
+  const [alert, setAlert] = useState({ message: '', type: '' });
+  const [shouldCloseModal, setShouldCloseModal] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -19,35 +22,45 @@ function RegisterStudentModal({ onClose }) {
     if (!password || password.length < 8) newErrors.password = 'Lozinka mora imati najmanje 8 karaktera.';
     if (password !== confirmPassword) newErrors.confirmPassword = 'Lozinke se ne poklapaju.';
     if (!faculty) newErrors.faculty = 'Fakultet je obavezan.';
-    if (!major) newErrors.major = 'Smer je obavezan.';
-    if (!graduationYear || graduationYear < new Date().getFullYear()) newErrors.graduationYear = 'Godina diplomiranja mora biti validna.';
+    if (!study_program) newErrors.study_program = 'Smer je obavezan.';
+    if (!graduation_year || graduation_year < new Date().getFullYear()) newErrors.graduation_year = 'Godina diplomiranja mora biti validna.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      const newStudent = { 
-        id: uuidv4(), 
-        name, 
-        email, 
-        password, 
-        faculty, 
-        major, 
-        graduationYear 
-      };
-  
-      // Preuzmi postojeće studente iz localStorage
-      let existingStudents = JSON.parse(localStorage.getItem('students')) || [];
-  
-      // Dodaj novog studenta u niz
-      existingStudents.push(newStudent);
-  
-      // Sačuvaj ažurirani niz studenata u localStorage
-      localStorage.setItem('students', JSON.stringify(existingStudents));
-  
-      console.log('Registered student:', newStudent);
-      onClose();
+      try {
+        const studentData = { 
+          name, 
+          email, 
+          password, 
+          password_confirmation: confirmPassword, 
+          faculty, 
+          study_program, 
+          graduation_year 
+        };
+
+        // Pozovi API za registraciju studenta
+        const response = await registerStudent(studentData);
+        console.log('Student registered successfully:', response);
+
+        // Postavi uspešnu poruku
+        setAlert({ message: 'Student je uspešno registrovan!', type: 'success' });
+        setShouldCloseModal(true); // Označi da treba da se zatvori modal
+
+      } catch (error) {
+        // Obradi greške sa backend-a
+        console.log('Error during student registration:', error);
+        setAlert({ message: 'Email već postoji. Molimo pokušajte sa drugim emailom.', type: 'error' });
+      }
+    }
+  };
+
+  const handleAlertClose = () => {
+    setAlert({ message: '', type: '' });
+    if (alert.type === 'success' && shouldCloseModal) {
+      onClose(); // Zatvori modal samo kada je obaveštenje uspešno
     }
   };
 
@@ -55,6 +68,9 @@ function RegisterStudentModal({ onClose }) {
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Registrujte se kao Student</h2>
+        {/* Prikaz Alert komponente */}
+        <Alert message={alert.message} type={alert.type} onClose={handleAlertClose} />
+
         <label>
           Ime:
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
@@ -82,19 +98,19 @@ function RegisterStudentModal({ onClose }) {
         </label>
         <label>
           Smer:
-          <input type="text" value={major} onChange={(e) => setMajor(e.target.value)} />
-          {errors.major && <p className="error">{errors.major}</p>}
+          <input type="text" value={study_program} onChange={(e) => setStudyProgram(e.target.value)} />
+          {errors.study_program && <p className="error">{errors.study_program}</p>}
         </label>
         <label>
           Godina Diplomiranja:
-          <input type="number" value={graduationYear} onChange={(e) => setGraduationYear(e.target.value)} />
-          {errors.graduationYear && <p className="error">{errors.graduationYear}</p>}
+          <input type="number" value={graduation_year} onChange={(e) => setGraduationYear(e.target.value)} />
+          {errors.graduation_year && <p className="error">{errors.graduation_year}</p>}
         </label>
         <button onClick={handleRegister}>Registruj se</button>
         <button onClick={onClose}>Zatvori</button>
       </div>
     </div>
   );
-};
+}
 
 export default RegisterStudentModal;

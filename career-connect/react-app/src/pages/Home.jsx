@@ -1,72 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../Api'; // Uvezi funkciju za login
 import RegisterStudentModal from '../components/RegisterStudentModal';
 import RegisterCompanyModal from '../components/RegisterCompanyModal';
 import '../styles/Home.css';
 
 function Home() {
-  const [userType, setUserType] = useState('student');
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showRegisterStudentModal, setShowRegisterStudentModal] = useState(false);
+  const [showRegisterCompanyModal, setShowRegisterCompanyModal] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleRegisterClick = () => {
-    setShowRegisterModal(true);
-  };
-
-  const handleTabClick = (type) => {
-    setUserType(type);
-  };
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-  
-    // Pretraživanje studenta ili kompanije
-    if (userType === 'student') {
-      const students = JSON.parse(localStorage.getItem('students')) || [];
-      const student = students.find(s => s.email === email && s.password === password);
-  
-      if (student) {
-        console.log('Logged in as student');
-        localStorage.setItem('currentUser', JSON.stringify({ ...student, userType: 'student' }));
-        navigate('/student-dashboard');
-      } else {
-        alert('Neispravan email ili lozinka.');
-      }
-    } else if (userType === 'company') {
-      const companies = JSON.parse(localStorage.getItem('companies')) || [];
-      const company = companies.find(c => c.email === email && c.password === password);
+
+    try {
+      const loginData = { email, password };
+      const response = await loginUser(loginData);
       
-      if (company) {
-        console.log('Logged in as company');
-        localStorage.setItem('currentUser', JSON.stringify({ ...company, userType: 'company' }));
+      const { token, user_type, user } = response;
+
+      // Čuvanje tokena i korisnika u sessionStorage
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('currentUser', JSON.stringify({ ...user, userType: user_type }));
+
+      // Navigacija prema odgovarajućem dashboard-u
+      if (user_type === 'student') {
+        navigate('/student-dashboard');
+      } else if (user_type === 'company') {
         navigate('/company-dashboard');
-      } else {
-        alert('Neispravan email ili lozinka.');
       }
+    } catch (error) {
+      alert(error.message || 'Neispravan email ili lozinka.');
     }
   };
 
   return (
     <div className="home-container">
-      <div className="tabs">
-        <button
-          className={userType === 'student' ? 'active' : ''}
-          onClick={() => handleTabClick('student')}
-        >
-          Student
-        </button>
-        <button
-          className={userType === 'company' ? 'active' : ''}
-          onClick={() => handleTabClick('company')}
-        >
-          Kompanija
-        </button>
-      </div>
-
       <div className="login-container">
-        <h1>{userType === 'student' ? 'Student Login' : 'Company Login'}</h1>
+        <h1>Login</h1>
         <form className="login-form" onSubmit={handleLogin}>
           <input 
             type="email" 
@@ -86,16 +59,20 @@ function Home() {
         </form>
         <div className="register-link">
           <p>Nemaš nalog?</p>
-          <button onClick={handleRegisterClick}>Registruj se</button>
+          {/* Dva dugmeta za registraciju: Student i Kompanija */}
+          <button onClick={() => setShowRegisterStudentModal(true)}>Registruj se kao student</button>
+          <button onClick={() => setShowRegisterCompanyModal(true)}>Registruj se kao kompanija</button>
         </div>
       </div>
 
-      {showRegisterModal && (
-        userType === 'student' ? (
-          <RegisterStudentModal onClose={() => setShowRegisterModal(false)} />
-        ) : (
-          <RegisterCompanyModal onClose={() => setShowRegisterModal(false)} />
-        )
+      {/* Modal za registraciju studenta */}
+      {showRegisterStudentModal && (
+        <RegisterStudentModal onClose={() => setShowRegisterStudentModal(false)} />
+      )}
+
+      {/* Modal za registraciju kompanije */}
+      {showRegisterCompanyModal && (
+        <RegisterCompanyModal onClose={() => setShowRegisterCompanyModal(false)} />
       )}
     </div>
   );

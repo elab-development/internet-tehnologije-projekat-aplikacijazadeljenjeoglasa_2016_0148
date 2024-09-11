@@ -10,7 +10,8 @@ function Navbar({ userType, activeTab, setActiveTab }) {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('token');
         navigate('/');
     };
 

@@ -53,7 +53,19 @@ class AuthController extends Controller
         $user = Auth::user();
         $token = $user->createToken('Personal Access Token')->plainTextToken;
 
-        return response()->json(['token' => $token], 200);
+        $userType = 'admin';
+
+        if ($user->company) {
+            $userType = 'company';
+        } elseif ($user->student) {
+            $userType = 'student';
+        }
+
+        return response()->json([
+            'token' => $token,
+            'user_type' => $userType,
+            'user' => $user,
+        ], 200);
     }
 
     // Logout korisnika

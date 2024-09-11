@@ -14,10 +14,14 @@ function StudentDashboard() {
   const jobsPerPage = 2;
   const [activeTab, setActiveTab] = useState('jobs');
 
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  const studentId = currentUser.id;
-
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  
+  // Ensure currentUser is not null before accessing its properties
+  const studentId = currentUser?.id || null;
+  
   useEffect(() => {
+    if (studentId === null) return;
+
     const allJobs = JSON.parse(localStorage.getItem('jobs')) || [];
     setJobs(allJobs);
 
@@ -27,6 +31,11 @@ function StudentDashboard() {
   }, [studentId]);
 
   const handleApply = (job) => {
+    if (!studentId) {
+      alert('Please log in to apply for jobs.');
+      return;
+    }
+
     const newApplication = {
       ...job,
       studentId: studentId, 

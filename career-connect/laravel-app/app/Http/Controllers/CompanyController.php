@@ -18,7 +18,7 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'company_description' => 'nullable|string',
+            'description' => 'nullable|string',
             'website' => 'nullable|url',
             'location' => 'nullable|string',
         ]);
@@ -35,7 +35,7 @@ class CompanyController extends Controller
 
         $company = Company::create([
             'user_id' => $user->id,
-            'company_description' => $request->company_description,
+            'description' => $request->description,
             'website' => $request->website,
             'location' => $request->location,
         ]);

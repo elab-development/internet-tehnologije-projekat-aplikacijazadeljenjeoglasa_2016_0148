@@ -45,7 +45,7 @@ class ApplicationController extends Controller
             );
         }
         $applications = Application::all();
-        return response()->json($applications);
+        return new ApplicationCollection($applications);
     }
     // Brisanje prijave (samo admin može da izvede)
     public function destroy($applicationId)

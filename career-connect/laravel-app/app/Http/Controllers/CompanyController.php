@@ -45,7 +45,24 @@ class CompanyController extends Controller
 
     public function index()
     {
-        $companies = Company::all();
+        // Uključivanje povezanog korisnika i vraćanje podataka
+        $companies = Company::with('user')->get();
+
+        // Formatiranje rezultata
+        $companies = $companies->map(function ($company) {
+            return [
+                'id' => $company->id,
+                'user_id' => $company->user_id,
+                'user_type' => 'company',
+                'description' => $company->description,
+                'website' => $company->website,
+                'location' => $company->location,
+                'name' => $company->user->name,
+                'email' => $company->user->email,
+
+            ];
+        });
+
         return response()->json($companies);
     }
 
@@ -81,9 +98,10 @@ class CompanyController extends Controller
             $company->openings()->delete();
 
             // Brisanje tokena
-            $user->tokens()->delete();
+            
 
             $user = $company->user;
+            $user->tokens()->delete();
             $company->delete();
             $user->delete();
 
@@ -104,11 +122,9 @@ class CompanyController extends Controller
 
             // Brisanje svih oglasa kompanije
             $company->openings()->delete();
-
-            // Brisanje tokena
-            $user->tokens()->delete();
-
+            
             $user = $company->user;
+            $user->tokens()->delete();
             $company->delete();
             $user->delete();
 

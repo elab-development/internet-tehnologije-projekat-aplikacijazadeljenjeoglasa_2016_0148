@@ -4,6 +4,7 @@ import StudentDashboard from './pages/StudentDashboard.jsx';
 import CompanyDashboard from './pages/CompanyDashboard';
 import CreateJob from './pages/CreateJob';
 import ProfilePage from './pages/ProfilePage.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/company-dashboard" element={<CompanyDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/create-job" element={<CreateJob />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>

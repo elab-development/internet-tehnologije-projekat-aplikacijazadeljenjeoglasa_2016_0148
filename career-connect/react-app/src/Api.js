@@ -129,6 +129,36 @@ export const createOpening = async (openingData) => {
     }
 };
 
+// Dobijanje svih studenata (samo admin)
+export const getAllStudents = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/students`, getAuthHeader());
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+// Dobijanje svih kompanija (samo admin)
+export const getAllCompanies = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/companies`, getAuthHeader());
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+// Dobijanje svih prijava (samo admin)
+export const getAllApplications = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/applications`, getAuthHeader());
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
 // Brisanje studenta (sopstvenog naloga ili od strane admina)
 export const deleteStudent = async (studentId = null) => {
     try {
@@ -149,6 +179,16 @@ export const deleteCompany = async (companyId = null) => {
             ? `${API_URL}/company/profile/${companyId}` // Admin briše odredjenu kompaniju
             : `${API_URL}/company/profile`;            // Kompanija briše svoj nalog
         const response = await axios.delete(url, getAuthHeader());
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+// Brisanje prijave (samo admin)
+export const deleteApplication = async (applicationId) => {
+    try {
+        const response = await axios.delete(`${API_URL}/applications/${applicationId}`, getAuthHeader());
         return response.data;
     } catch (error) {
         throw error.response.data;

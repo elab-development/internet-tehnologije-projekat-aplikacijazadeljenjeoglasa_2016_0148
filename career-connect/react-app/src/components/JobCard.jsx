@@ -15,7 +15,6 @@ function JobCard({
   const [alreadyApplied, setAlreadyApplied] = useState(initialAlreadyApplied);
 
   useEffect(() => {
-    // Update the local state if the initial prop changes
     setAlreadyApplied(initialAlreadyApplied);
   }, [initialAlreadyApplied]);
 

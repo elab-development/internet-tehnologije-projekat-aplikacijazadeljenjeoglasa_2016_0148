@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { registerStudent } from '../Api'; // Uvezi API funkciju
-import Alert from '../components/Alert'; // Uvezi Alert komponentu
+import { registerStudent } from '../Api';
+import Alert from '../components/Alert';
 import '../styles/Modal.css';
 
 function RegisterStudentModal({ onClose }) {

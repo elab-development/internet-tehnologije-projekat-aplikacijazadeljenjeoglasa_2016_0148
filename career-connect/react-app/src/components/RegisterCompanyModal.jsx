@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { registerCompany, getCurrentLocation } from '../Api'; // Uvezi API funkcije
-import Alert from '../components/Alert'; // Uvezi Alert komponentu
+import { registerCompany, getCurrentLocation } from '../Api';
+import Alert from '../components/Alert';
 import '../styles/Modal.css';
 
 function RegisterCompanyModal({ onClose }) {

@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/ApplicationCard.css';
 
-function ApplicationCard({ application, isCompany, onSaveStatus }) {
+function ApplicationCard({ application, isCompany, onSaveStatus, onDelete }) {
   const [status, setStatus] = useState(application.status);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Učitavanje currentUser iz sessionStorage
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    if (currentUser && currentUser.userType === 'admin') {
+      setIsAdmin(true);
+    }
+  }, []);
 
   const handleStatusChange = (e) => {
     setStatus(e.target.value);
@@ -10,6 +19,10 @@ function ApplicationCard({ application, isCompany, onSaveStatus }) {
 
   const handleSave = () => {
     onSaveStatus(application.id, status);
+  };
+
+  const handleDelete = () => {
+    onDelete(application.id);
   };
 
   // Funkcija za formatiranje datuma, sa proverom da li je datum definisan
@@ -23,13 +36,13 @@ function ApplicationCard({ application, isCompany, onSaveStatus }) {
 
   return (
     <div className="application-card">
-      <h3>{application.opening.title}</h3> {/* Prikazuje naziv pozicije */}
-      <p>Kompanija: {application.opening.company}</p> {/* Prikazuje ime kompanije */}
-      <p>Datum prijave: {formatDate(application.applied_at)}</p> {/* Prikazuje datum prijave */}
-      <p>Ime studenta: {application.student.name}</p> {/* Prikazuje ime studenta */}
-      <p>Fakultet: {application.student.faculty}</p> {/* Prikazuje fakultet */}
-      <p>Smer: {application.student.study_program}</p> {/* Prikazuje studijski program */}
-      <p>Status prijave: {status}</p> {/* Prikazuje trenutni status prijave */}
+      <h3>{application.opening.title}</h3>
+      <p>Kompanija: {application.opening.company}</p>
+      <p>Datum prijave: {formatDate(application.applied_at)}</p>
+      <p>Ime studenta: {application.student.name}</p>
+      <p>Fakultet: {application.student.faculty}</p> 
+      <p>Smer: {application.student.study_program}</p> 
+      <p>Status prijave: {status}</p> 
 
       {isCompany && (
         <div>
@@ -40,6 +53,11 @@ function ApplicationCard({ application, isCompany, onSaveStatus }) {
           </select>
           <button onClick={handleSave}>Sačuvaj</button>
         </div>
+      )}
+
+      {/* Dugme za brisanje koje je vidljivo samo adminima */}
+      {isAdmin && (
+        <button className="delete-button" onClick={handleDelete}>Obriši</button>
       )}
     </div>
   );

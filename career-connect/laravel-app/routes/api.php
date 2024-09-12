@@ -20,13 +20,14 @@ Route::post('/register/student', [StudentController::class, 'register']);
 Route::post('/register/company', [CompanyController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Student rute
+
     // Student rute
     Route::match(['get', 'post'], '/student/openings/{id}/apply', [StudentController::class, 'applyOrCheck']); // Prijava studenta ili provera prijave na oglas
     Route::delete('/student/profile/{studentId?}', [StudentController::class, 'destroy']); // Brisanje studenta (sopstvenog naloga ukoliko nije prosledjen ID ili odredjenog naloga od strane admina ukoliko je prosledjen ID)
+    Route::get('/students', [StudentController::class, 'index']); // Prikaz svih studenata namenjen adminu
 
     // Kompanija rute
-    Route::delete('/company/profile/{companyId?}', [CompanyController::class, 'destroy']); // // Brisanje kompanije (sopstvenog naloga ukoliko nije prosledjen ID ili odredjenog naloga od strane admina ukoliko je prosledjen ID)
+    Route::delete('/company/profile/{companyId?}', [CompanyController::class, 'destroy']); // Brisanje kompanije (sopstvenog naloga ukoliko nije prosledjen ID ili odredjenog naloga od strane admina ukoliko je prosledjen ID)
     Route::get('/companies', [CompanyController::class, 'index']); // Prikaz svih kompanija
 
     // Poslovi rute

@@ -50,6 +50,34 @@ class StudentController extends Controller
         return response()->json(['message' => 'Student registered successfully'], 201);
     }
 
+    // Prikaz svih studenata koji moze da radi samo admin
+    public function index()
+    {
+        // Provera da li je korisnik administrator
+        if (!Auth::user() || !Auth::user()->admin) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Uključivanje povezanog korisnika i vraćanje podataka
+        $students = Student::with('user')->get();
+
+        // Formatiranje rezultata
+        $students = $students->map(function ($student) {
+            return [
+                'id' => $student->id,
+                'user_id' => $student->user_id,
+                'user_type' => 'student',
+                'faculty' => $student->faculty,
+                'study_program' => $student->study_program,
+                'graduation_year' => $student->graduation_year,
+                'name' => $student->user->name,
+                'email' => $student->user->email,
+            ];
+        });
+
+        return response()->json($students);
+    }
+
     // Provera da li je korisnik student
     private function ensureStudent()
     {
@@ -114,9 +142,10 @@ class StudentController extends Controller
             $student->applications()->delete();
 
             // Brisanje tokena
-            $user->tokens()->delete();
+            
 
             $user = $student->user;
+            $user->tokens()->delete();
             $student->delete();
             $user->delete();
 
@@ -134,9 +163,10 @@ class StudentController extends Controller
             $student->applications()->delete();
 
             // Brisanje tokena
-            $user->tokens()->delete();
+            
 
             $user = $student->user;
+            $user->tokens()->delete();
             $student->delete();
             $user->delete();
 

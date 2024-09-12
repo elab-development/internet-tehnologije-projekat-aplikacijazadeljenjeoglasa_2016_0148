@@ -10,7 +10,7 @@ function CreateJob() {
 
   // Dodajemo state za poruke
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState('success'); // Default je success, ali menja se u error po potrebi
+  const [alertType, setAlertType] = useState('success');
 
   const [jobData, setJobData] = useState({
     title: '',
@@ -19,7 +19,7 @@ function CreateJob() {
     expiresAtDate: '',
     expiresAtTime: '',
     description: '',
-    location: '', // Dodato polje za lokaciju
+    location: '',
   });
 
   useEffect(() => {
@@ -44,8 +44,8 @@ function CreateJob() {
       if (jobData.id) {
         // Izmena postojećeg oglasa
         await updateOpening(jobData.id, updatedJobData);
-        setAlertMessage('Oglas je uspešno ažuriran'); // Postavljanje poruke
-        setAlertType('success'); // Tip poruke
+        setAlertMessage('Oglas je uspešno ažuriran');
+        setAlertType('success');
       } else {
         // Kreiranje novog oglasa
         await createOpening(updatedJobData);
@@ -57,7 +57,7 @@ function CreateJob() {
     } catch (error) {
       console.error("Greška prilikom čuvanja oglasa:", error);
       setAlertMessage('Došlo je do greške prilikom čuvanja oglasa. Pokušajte ponovo.');
-      setAlertType('error'); // Prikazujemo grešku
+      setAlertType('error');
     }
   };
 
@@ -66,7 +66,7 @@ function CreateJob() {
   };
 
   const closeAlert = () => {
-    setAlertMessage(''); // Zatvaranje poruke
+    setAlertMessage('');
   };
 
   return (
@@ -139,7 +139,7 @@ function CreateJob() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="location">Lokacija</label>  {/* Novo polje za lokaciju */}
+          <label htmlFor="location">Lokacija</label>
           <input
             type="text"
             name="location"

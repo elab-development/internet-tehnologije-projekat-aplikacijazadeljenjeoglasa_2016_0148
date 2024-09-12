@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import JobCard from '../components/JobCard';
-import Alert from '../components/Alert'; // Importujemo Alert komponentu
-import { getCompanyOpenings, deleteOpening } from '../Api'; // Importuj API funkcije
+import Alert from '../components/Alert';
+import { getCompanyOpenings, deleteOpening } from '../Api';
 import '../styles/CompanyDashboard.css';
 
 function CompanyDashboard() {
   const [openings, setOpenings] = useState([]);
-  const [alert, setAlert] = useState({ message: '', type: '' }); // Stanje za Alert komponentu
+  const [alert, setAlert] = useState({ message: '', type: '' });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function CompanyDashboard() {
 
         if (currentUser) {
           const response = await getCompanyOpenings();
-          setOpenings(response.data); // Pristupi 'data' iz odgovora
+          setOpenings(response.data);
         } else {
           navigate('/');
         }

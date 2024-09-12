@@ -33,6 +33,8 @@ function Home() {
         navigate('/student-dashboard');
       } else if (user_type === 'company') {
         navigate('/company-dashboard');
+      } else if (user_type === 'admin') {
+        navigate('/admin-dashboard');
       }
     } catch (error) {
       setAlertMessage('Neispravan email ili lozinka.');

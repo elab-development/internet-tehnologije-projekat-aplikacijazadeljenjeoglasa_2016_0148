@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ApplicationCard.css';
+import { changeStatus, downloadCv } from '../Api';
+import Alert from './Alert';
 
 function ApplicationCard({ application, isCompany, onSaveStatus, onDelete }) {
   const [status, setStatus] = useState(application.status);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('');
 
   useEffect(() => {
     // Učitavanje currentUser iz sessionStorage
@@ -17,12 +21,36 @@ function ApplicationCard({ application, isCompany, onSaveStatus, onDelete }) {
     setStatus(e.target.value);
   };
 
-  const handleSave = () => {
-    onSaveStatus(application.id, status);
+  const handleSave = async () => {
+    try {
+      // Pozivanje changeStatus funkcije iz Api.js
+      await changeStatus(application.id, status);
+      // Poziv onSaveStatus callback-a ako je potreban
+      if (onSaveStatus) {
+        onSaveStatus(application.id, status);
+      }
+      setAlertMessage('Status prijave je uspešno ažuriran.');
+      setAlertType('success');
+    } catch (error) {
+      setAlertMessage(`Greška: ${error.message}`);
+      setAlertType('error');
+    }
   };
 
   const handleDelete = () => {
     onDelete(application.id);
+  };
+
+  // Funkcija za preuzimanje CV-a
+  const handleDownloadCv = async () => {
+    try {
+      await downloadCv(application.id, application.student.name);
+      setAlertMessage('CV je uspešno preuzet.');
+      setAlertType('success');
+    } catch (error) {
+      setAlertMessage(`Greška pri preuzimanju CV-a: ${error.message}`);
+      setAlertType('error');
+    }
   };
 
   // Funkcija za formatiranje datuma, sa proverom da li je datum definisan
@@ -30,12 +58,20 @@ function ApplicationCard({ application, isCompany, onSaveStatus, onDelete }) {
     if (!dateString) {
       return 'Nepoznato'; // Vrati default vrednost ako datum nije definisan
     }
-    const date = new Date(dateString.replace(' ', 'T')); // Zameni razmak sa 'T' da bude u ISO formatu
+    const date = new Date(dateString.replace(' ', 'T'));
     return date.toLocaleDateString();
+  };
+
+  // Funkcija za zatvaranje alert poruka
+  const handleAlertClose = () => {
+    setAlertMessage('');
   };
 
   return (
     <div className="application-card">
+      {alertMessage && (
+        <Alert message={alertMessage} type={alertType} onClose={handleAlertClose} />
+      )}
       <h3>{application.opening.title}</h3>
       <p>Kompanija: {application.opening.company}</p>
       <p>Datum prijave: {formatDate(application.applied_at)}</p>
@@ -52,6 +88,9 @@ function ApplicationCard({ application, isCompany, onSaveStatus, onDelete }) {
             <option value="rejected">Odbijen</option>
           </select>
           <button onClick={handleSave}>Sačuvaj</button>
+          {application.cv_path && (
+            <button onClick={handleDownloadCv}>Preuzmi CV</button>
+          )}
         </div>
       )}
 

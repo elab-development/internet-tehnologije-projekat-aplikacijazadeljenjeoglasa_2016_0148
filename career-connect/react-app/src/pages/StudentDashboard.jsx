@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
 import ApplicationCard from "../components/ApplicationCard";
-import Alert from "../components/Alert"; // Dodajemo Alert komponentu
+import Alert from "../components/Alert";
 import { getAllOpenings, applyToJob, getStudentApplications } from "../Api";
 import "../styles/StudentDashboard.css";
 
@@ -16,14 +16,13 @@ function StudentDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState("jobs");
-  const [alert, setAlert] = useState({ message: '', type: '' }); // Dodajemo stanje za Alert
+  const [alert, setAlert] = useState({ message: '', type: '' });
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
   const studentId = currentUser?.id || null;
 
   useEffect(() => {
     if (studentId === null) return;
 
-    // Povlačenje poslova iz baze uz primenu filtera
     const fetchJobs = async () => {
       try {
         const filters = {
@@ -61,17 +60,16 @@ function StudentDashboard() {
     setCurrentPage(1);
   }, [searchTerm, filterMode, employmentType]);
 
-  const handleApply = async (job) => {
+  const handleApply = async (job, cv) => {
     if (!studentId) {
       setAlert({ message: "Molimo vas da se prijavite kako biste aplicirali.", type: "warning" });
       return;
     }
 
     try {
-      await applyToJob(job.id);
+      await applyToJob(job.id, cv);
       setAlert({ message: `Uspešno ste aplicirali za posao: ${job.title}`, type: "success" });
 
-      // Nakon prijave, ažuriramo listu prijava
       const updatedApplications = await getStudentApplications();
       setApplications(updatedApplications.data);
     } catch (error) {
@@ -127,7 +125,7 @@ function StudentDashboard() {
                     key={job.id}
                     job={job}
                     isStudent={true}
-                    onApply={() => handleApply(job)}
+                    onApply={(cv) => handleApply(job, cv)}
                     alreadyApplied={alreadyApplied}
                   />
                 );

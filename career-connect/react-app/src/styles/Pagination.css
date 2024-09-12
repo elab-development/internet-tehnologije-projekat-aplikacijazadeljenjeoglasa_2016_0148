@@ -10,8 +10,8 @@
   }
   
   .pagination button {
-    background-color: #007bff; /* Plava pozadina za dugmad */
-    color: white; /* Bela boja teksta */
+    background-color: #007bff; 
+    color: white; 
     border: none;
     border-radius: 4px;
     padding: 10px 15px;
@@ -20,7 +20,7 @@
   }
   
   .pagination button:disabled {
-    background-color: #d6d6d6; /* Svetlo siva za neaktivna dugmad */
+    background-color: #d6d6d6; 
     cursor: not-allowed;
   }
   
@@ -30,7 +30,7 @@
   }
   
   .pagination li:not(:last-child) {
-    margin-right: 10px; /* Razmak između stranica */
+    margin-right: 10px; 
   }
   
   .pagination li span {

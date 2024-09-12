@@ -9,7 +9,7 @@ class Application extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['status', 'student_id', 'opening_id'];
+    protected $fillable = ['status', 'student_id', 'opening_id', 'cv_path'];
 
     // Relations
 

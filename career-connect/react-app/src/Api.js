@@ -66,9 +66,18 @@ export const getAllOpenings = async (filters = {}, page = 1) => {
     }
 };
 
-export const applyToJob = async (openingId) => {
+export const applyToJob = async (openingId, cv = null) => {
+    const formData = new FormData();
+    formData.append('cv', cv);
+
     try {
-        const response = await axios.post(`${API_URL}/student/openings/${openingId}/apply`, {}, getAuthHeader());
+        const response = await axios.post(`${API_URL}/student/openings/${openingId}/apply`, formData, {
+            ...getAuthHeader(),
+            headers: {
+                ...getAuthHeader().headers,
+                'Content-Type': 'multipart/form-data'
+            },
+        });
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -84,9 +93,47 @@ export const checkIfApplied = async (openingId) => {
     }
 };
 
+export const downloadCv = async (applicationId, studentName) => {
+    try {
+        const response = await axios.get(`${API_URL}/applications/${applicationId}/cv`, {
+            ...getAuthHeader(),
+            responseType: 'blob', // Ova opcija je potrebna da bi se pravilno preuzeo fajl
+        });
+
+        // Kreiranje URL za preuzimanje fajla
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Kreiranje dinamičnog imena fajla na osnovu imena studenta
+        const filename = `${studentName}_cv.pdf`;
+        link.setAttribute('download', filename);
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Uklanjane linka nakon preuzimanja
+        link.parentNode.removeChild(link);
+
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
 export const getStudentApplications = async () => {
     try {
         const response = await axios.get(`${API_URL}/student/applications`, getAuthHeader());
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+// Funkcija za preuzimanje svih prijava za određeni oglas koji pripada kompaniji
+export const getApplicationsForOpening = async (openingId) => {
+    try {
+        const response = await axios.get(`${API_URL}/applications/openings/${openingId}`, getAuthHeader());
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -159,6 +206,20 @@ export const getAllApplications = async () => {
     }
 };
 
+// Kompanija menja status prijave
+export const changeStatus = async (applicationId, status) => {
+    try {
+        const response = await axios.put(
+            `${API_URL}/applications/${applicationId}/status`,
+            { status },
+            getAuthHeader()
+        );
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
 // Brisanje studenta (sopstvenog naloga ili od strane admina)
 export const deleteStudent = async (studentId = null) => {
     try {
@@ -206,7 +267,7 @@ export const getCurrentLocation = async () => {
         const locationResponse = await axios.get(`http://api.ipstack.com/${ipAddress}?access_key=faf77daa746a14dd7cdf025fde147b1a`);
         const locationData = locationResponse.data;
 
-        // Ekstrahuj željene podatke
+        // Ekstrahovanje podataka
         const { continent_name, country_name, city } = locationData;
 
         return { continent_name, country_name, city };

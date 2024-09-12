@@ -116,10 +116,26 @@ class StudentController extends Controller
             return response()->json(['error' => 'You have already applied for this job.'], 400);
         }
 
+        // Provera i upload CV fajla
+        $cvPath = null;
+        if ($request->hasFile('cv')) {
+            $validator = Validator::make($request->all(), [
+                'cv' => 'file|mimes:pdf|max:2048', // Maksimalno 2MB, podržani formati
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // Sačuvaj CV fajl
+            $cvPath = $request->file('cv')->store('cvs', 'public');
+        }
+
         // Prijava studenta na oglas
         Application::create([
             'student_id' => $student->id,
             'opening_id' => $opening->id,
+            'cv_path' => $cvPath,
         ]);
 
         return response()->json(['message' => 'Application submitted successfully.']);
@@ -142,7 +158,7 @@ class StudentController extends Controller
             $student->applications()->delete();
 
             // Brisanje tokena
-            
+
 
             $user = $student->user;
             $user->tokens()->delete();
@@ -163,7 +179,7 @@ class StudentController extends Controller
             $student->applications()->delete();
 
             // Brisanje tokena
-            
+
 
             $user = $student->user;
             $user->tokens()->delete();

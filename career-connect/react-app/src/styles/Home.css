@@ -13,7 +13,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 400px; /* Maksimalna širina forme */
+  max-width: 400px;
 }
 
 h1 {
@@ -23,23 +23,23 @@ h1 {
 }
 
 .login-form {
-  width: 100%; /* Forma zauzima celu širinu */
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .login-form input {
-  width: 100%; /* Polja za unos zauzimaju celu širinu forme */
+  width: 100%; 
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  box-sizing: border-box; /* Padding i border su uračunati u širinu */
+  box-sizing: border-box; 
 }
 
 .login-form button {
-  width: 100%; /* Dugme je iste širine kao input polja */
+  width: 100%; 
   padding: 10px;
   background-color: #007bff;
   color: white;

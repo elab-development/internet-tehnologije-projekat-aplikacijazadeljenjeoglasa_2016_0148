@@ -19,6 +19,7 @@ class ApplicationResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'applied_at' => $this->applied_at,
+            'cv_path' => $this->cv_path,
             'student' => [
                 'name' => $this->student->user->name,
                 'faculty' => $this->student->faculty,

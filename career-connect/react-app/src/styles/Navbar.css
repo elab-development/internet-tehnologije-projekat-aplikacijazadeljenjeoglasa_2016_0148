@@ -24,22 +24,22 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px 10px; /* Dodajte padding za bolju preglednost */
-    transition: color 0.3s, border-bottom 0.3s; /* Dodajte tranzicije za efekte */
+    padding: 5px 10px; 
+    transition: color 0.3s, border-bottom 0.3s; 
   }
   
   .navbar a.active,
   .navbar button.active {
     font-weight: bold;
-    border-bottom: 2px solid #fff; /* Dodajte donju ivicu za aktivan tab */
-    color: #fff; /* Osigurajte da tekst bude bele boje */
+    border-bottom: 2px solid #fff; 
+    color: #fff; 
   }
   
   .navbar a:hover,
   .navbar button:hover {
-    color: #ddd; /* Dodajte svetlu boju za hover efekat */
+    color: #ddd;
   }
   
   .navbar .right {
-    margin-left: auto; /* Pomera desnu stranu na krajnji desni deo */
+    margin-left: auto; 
   }

@@ -14,7 +14,7 @@ function Alert({ message, type, onClose }) {
   return (
     message && (
       <div className={`alert ${type}`}>
-        <p>{message}</p>
+        <p className="alert-message">{message}</p>
         <button className="alert-close" onClick={onClose}>×</button>
       </div>
     )

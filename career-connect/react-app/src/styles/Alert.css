@@ -12,13 +12,17 @@
     width: 300px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
+
+  .alert-message {
+    color: #fff;
+  }
   
   .alert.success {
-    background-color: #8ed891;
+    background-color: #4ec352;
   }
   
   .alert.error {
-    background-color: #ff958e;
+    background-color: #d44f46;
   }
   
   .alert-close {

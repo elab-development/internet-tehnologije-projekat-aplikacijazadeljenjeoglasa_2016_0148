@@ -12,7 +12,7 @@ function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState(''); // 'success' or 'error'
+  const [alertType, setAlertType] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {

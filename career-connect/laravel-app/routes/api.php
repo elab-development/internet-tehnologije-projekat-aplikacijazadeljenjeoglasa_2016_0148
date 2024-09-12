@@ -40,5 +40,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications', [ApplicationController::class, 'indexForAdmin']); // Prikaz svih prijava (namenjen adminu)
     Route::delete('/applications/{applicationId}', [ApplicationController::class, 'destroy']); // Brisanje prijave (namenjeno adminu)
     Route::get('/student/applications', [ApplicationController::class, 'indexForStudent']); // Prikaz svih prijava za trenutno ulogovanog studenta
-
+    Route::get('/applications/{applicationId}/cv', [ApplicationController::class, 'downloadCv']); // Preuzimanje cv-a od strane kompanije 
 });

@@ -91,4 +91,27 @@ class ApplicationController extends Controller
         $applications = Application::where('student_id', $student->id)->get();
         return new ApplicationCollection($applications);
     }
+
+    public function downloadCv($applicationId)
+{
+    $company = Auth::user()->company;
+    if (!$company) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $application = Application::findOrFail($applicationId);
+
+    // Proveri da li je prijava za oglas koji pripada kompaniji
+    if ($application->opening->company_id !== $company->id) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    // Proveri da li prijava ima sačuvan CV
+    if (!$application->cv_path) {
+        return response()->json(['error' => 'No CV available for this application'], 404);
+    }
+
+    // Preuzmi CV
+    return response()->download(storage_path('app/public/' . $application->cv_path));
+}
 }
